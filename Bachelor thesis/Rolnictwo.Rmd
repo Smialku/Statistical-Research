@@ -1,0 +1,310 @@
+---
+title: "Screens_rolnictow"
+author: "Maciej Śmiałowski"
+date: "24 06 2020"
+output: html_document
+---
+
+
+
+
+```{r include=FALSE,echo=FALSE}
+
+library(tidyverse)
+library(Hmisc)
+library(MASS)
+library(klaR)
+library(psych)
+library(caret)
+library(car)
+library(corrplot)
+library(ggpubr)
+library(moments)
+library(rcompanion)
+theme_set(theme_classic())
+
+
+
+```
+
+
+
+```{r  }
+
+
+rm(list=ls())
+
+data_manu <- read.csv(file="Dane_lic(nb_b_manufacture_16_year_15).csv", header=TRUE, sep=";")
+data_agri <- read.csv(file="Dane_lic(nb_b_agriculture_16_year_13).csv", header=TRUE, sep=";")
+data_cons <- read.csv(file="Dane_lic(nb_b_construction_16_year_15).csv", header=TRUE, sep=";")
+
+
+
+OutVals = boxplot(data_agri)$out
+OutVals = boxplot(data_manu)$out
+OutVals = boxplot(data_cons)$out
+
+
+
+
+
+### OUTLIERS ROLNICTWO
+
+### Usuanie zmiennej V18
+
+data_agri <- data_agri[,-19]
+OutVals = boxplot(data_agri)$out
+
+
+
+data_agri <- data_agri[-14,]
+OutVals = boxplot(data_agri)$out
+
+
+data_agri <- data_agri[-14,]
+
+
+
+OutVals = boxplot(data_agri)$out
+
+data_agri <- data_agri[-1,]
+OutVals = boxplot(data_agri)$out
+
+data_agri <- data_agri[-9,]
+OutVals = boxplot(data_agri)$out
+
+data_agri <- data_agri[-9,]
+OutVals = boxplot(data_agri)$out
+
+data_agri <- data_agri[-9,]
+OutVals = boxplot(data_agri)$out
+
+
+
+data_agri <- data_agri[-4,]
+OutVals = boxplot(data_agri)$out
+
+data_agri <- data_agri[-3,]
+OutVals = boxplot(data_agri)$out
+
+data_agri <- data_agri[-2,]
+OutVals = boxplot(data_agri)$out
+
+
+data_agri <- data_agri[-7,]
+OutVals = boxplot(data_agri)$out
+
+data_agri <- data_agri[-2,]
+OutVals = boxplot(data_agri)$out
+
+
+
+### Usuanie zmiennej V21
+
+data_agri <- data_agri[,-21]
+OutVals = boxplot(data_agri)$out
+
+## Usuwanie zmiennej V2
+
+data_agri <- data_agri[,-3]
+OutVals = boxplot(data_agri)$out
+
+
+## Usuwanie zmiennej V12
+
+data_agri <- data_agri[,-12]
+OutVals = boxplot(data_agri)$out
+
+## Usuwanie zmiennej V13
+
+data_agri <- data_agri[,-12]
+OutVals = boxplot(data_agri)$out
+
+## Usuwanie zmiennej V17
+
+data_agri <- data_agri[,-15]
+OutVals = boxplot(data_agri)$out
+
+
+
+```
+
+
+
+```{r  }
+
+
+### Transpformacja
+
+
+T_tuk =
+  transformTukey(data_agri$V1,
+                 plotit=FALSE)
+data_agri$V1 <- (data_agri$V1)^0.65 
+
+
+
+T_tuk =
+  transformTukey(data_agri$V3,
+                 plotit=FALSE)
+data_agri$V3 <- (-0.225* ((data_agri$V3)^(-0.225)))
+
+
+
+T_tuk =
+  transformTukey(data_agri$V4,
+                 plotit=FALSE)
+data_agri$V4 <- (data_agri$V4)^0.25 
+
+
+
+T_tuk =
+  transformTukey(data_agri$V5,
+                 plotit=FALSE)
+data_agri$V5 <- (-0.4* ((data_agri$V5)^(-0.4)))
+
+
+
+
+T_tuk =
+  transformTukey(data_agri$V6,
+                 plotit=FALSE)
+data_agri$V6 <- (-0.375* ((data_agri$V6)^(-0.375)))
+
+
+T_tuk =
+  transformTukey(data_agri$V7,
+                 plotit=FALSE)
+data_agri$V7 <- (data_agri$V7)^0.775 
+
+
+T_tuk =
+  transformTukey(data_agri$V8,
+                 plotit=FALSE)
+data_agri$V8 <- (data_agri$V8)^1.375 
+
+
+
+T_tuk =
+  transformTukey(data_agri$V9,
+                 plotit=FALSE)
+data_agri$V9 <- (data_agri$V9)^0.45 
+
+
+
+T_tuk =
+  transformTukey(data_agri$V10,
+                 plotit=FALSE)
+data_agri$V10 <- (data_agri$V10)^0.875 
+
+
+
+T_tuk =
+  transformTukey(data_agri$V11,
+                 plotit=FALSE)
+data_agri$V11 <- (data_agri$V11)^1.05
+
+T_tuk =
+  transformTukey(data_agri$V14,
+                 plotit=FALSE)
+data_agri$V14 <- (data_agri$V14)^0.625
+
+
+
+T_tuk =
+  transformTukey(data_agri$V15,
+                 plotit=FALSE)
+data_agri$V15 <- (data_agri$V15)^1.15
+
+
+
+
+
+
+T_tuk =
+  transformTukey(data_agri$V16,
+                 plotit=FALSE)
+data_agri$V16 <- log(data_agri$V16)
+T_tuk =
+  transformTukey(data_agri$V16,
+                 plotit=FALSE)
+data_agri$V16 <- (data_agri$V16)^0.9
+
+
+
+
+
+
+T_tuk =
+  transformTukey(data_agri$V19,
+                 plotit=FALSE)
+data_agri$V19 <- (data_agri$V19)^0.65
+
+
+
+
+
+T_tuk =
+  transformTukey(data_agri$V20,
+                 plotit=FALSE)
+data_agri$V20 <- (data_agri$V20)^0.475
+
+
+
+data_agri1 <- data_agri[,2:16]
+lapply(data_agri1,shapiro.test)
+
+
+```
+
+
+
+```{r  }
+
+## standaryzacja
+
+data_agri$V20 <- scale(data_agri$V20)
+data_agri$V19 <- scale(data_agri$V19) 
+data_agri$V16 <- scale(data_agri$V16) 
+data_agri$V15 <- scale(data_agri$V15) 
+data_agri$V14 <- scale(data_agri$V11) 
+data_agri$V10 <- scale(data_agri$V10) 
+data_agri$V9 <- scale(data_agri$V9) 
+data_agri$V8 <- scale(data_agri$V8) 
+data_agri$V7 <- scale(data_agri$V7)
+data_agri$V6 <- scale(data_agri$V6)
+data_agri$V5 <- scale(data_agri$V5)
+data_agri$V4 <- scale(data_agri$V4)
+data_agri$V3 <- scale(data_agri$V3)
+data_agri$V1 <- scale(data_agri$V1)
+
+
+data_agri_1 <-data_agri[,2:16]
+round(psych::describe(data_agri_1), 2)
+
+```
+
+
+
+```{r }
+
+
+TESTOWE <- read.csv(file="MODEL_TEST.csv", header=TRUE, sep=";")  
+model_test<-lm(V0~V1+V5+V16+V20,data = TESTOWE)     
+vif(model_test)
+
+
+
+```
+
+
+```{r }
+
+model <- lda(Type~V1+V8+V16+V20, data = data_agri)
+model
+plot(model)
+
+```
+
+
+

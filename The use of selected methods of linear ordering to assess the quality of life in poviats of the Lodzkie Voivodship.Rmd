@@ -1,0 +1,245 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+encoding='utf-8'
+
+
+```
+# <font size="15"> Zastosowanie wybranych metod porządkowania liniowego do oceny jakości życia w powiatach województwa łódzkiego</font>
+```{r echo=FALSE , results = 'hide' , message=F, warning=F}
+getwd()
+    ```
+#Wstęp
+Jakoś życia jest pojęciem obejmującym szereg czynników społecznych jak i gospodarczych a badania tego typu są dość popularne.Głownym celem tego typu analiz jest określenie (w tym przypadku) powiatu ktory oferuje najlespze warunki do edukacji, opieki społecznej, posaida dobre warunki dla rozwoju kultury, jego mieszkańcy dobrze zarabiają a bezrobocie jest małe.Badania zostaną przeprowadzone na danych odnoszących się do powiatów województwa Łódzkiego, jest to jednstka administracyjna znajdująca się w centralnej Polsce.Siedziba władz województwa znajduje się w mieście Łódź. Badane województwo charakteryzuje się zróźnicowanym poziomem gestości zaludnienia, oraz zróźncowanym rozwojem infrastruktury.Województwo łódzkie nie jest bogatym województwem na podstawie rankingu ["Najbogatsze samorządy w 2018 r." Pisma Samorządu Terytorialnego "Wspólnota" ] znajduje się na 14 pozycji z wynikiem 232,22 zł na mieszkańca dla porówania pierwsze w tym rankingu było województwo mazowieckie, czyli województwo graniczące z badanym obszarem, z wynikiem 420,97zł na mieszkańca.
+
+
+#Hipotezy badawcze oraz cel pracy:
+Celem badań będzie określenie powaitu w którym panują najlepsze warunki do życia. 
+Natomiast hipotezy będą brzmieć następująco:
+
+-Miasta na prawach powiatu będą w czałówce rankingu ze względu  na większe wydatki na mieszkańców oraz bardziej rozwiniętą infrastrukture.
+
+-W czołówce będzie znajdować sie powiat bełchatowski ze względu na fakt,iż w jego skład wchodzi gmina kleszczów, która jest najbogatszą gminą w Polsce, a także na industrialny charakter tego regionu(kopalnia węgla brunatnego oraz elektrowania).
+
+-Powiaty w których znajdują się miasta będą znajdować się w czołówce.
+
+-Powiaty graniczące z Województwem mazowieckim będą na wyższych pozycjach w rankingu.
+ 
+
+#Zastosowane narzędzia
+Podstawą porządkowania liniowego są zminne syntetyczne,natomiast jego głównym zadaniem jest uporządkowanie badanych obiektów. Zazwyczaj różne metody dają róźne rezultaty.
+
+W naszych badaniach owiaty zostaną uporządkowane za pomocą następujących metod porządkowania liniowego:
+
+###TOPSIS
+  
+  Metoda wzorcowa opracowana przez Hwanga i Yonna w roku 1981.Jest to najwygodniejsza i   najpopularniejsz metoda porządkowania liniowego.
+  
+###Metoda Hellwiga
+  
+  Metoda wzorcowa opracowana przez Hellwiga w roku 1968.Problemem tej metody jest fakt   ,iż zakłada ona równe znaczenie każdej z zmiennych.
+  
+###Metoda standaryzowanych sum
+  
+  Popularna technika bezwzorcowa porządkowania liniowego, w  metodzie standaryzowanych   sum dla każdego obiektu sumuje się zestandaryzowane wcześniej wartości, a              następnie konstruuje względny wskaźnik poziomu rozwoju.
+  
+
+Zastosowane zostały następujące biblioteki:
+```{r echo = T, results = 'hide' , message=F, warning=F}
+
+library('psych')
+library('corrplot')
+library('topsis')
+library('knitr')
+    ```
+
+
+#Opis zbioru danych
+
+
+X1-ilość żłobków przypapdająca na 10000 mieszkańców <br />
+X2-ilość szkół podstawowych przypapdająca na 10000 mieszkańców <br />
+X3-ilość palacówek opieki społecznej przypapdająca na 10000 mieszkańców <br />
+X4-ilość Centra, ośrodki i domy kultury,kluby i świetlice przypapdająca na 10000 mieszkańców <br />
+X5-ilość muzeów przypapdająca na 10000 mieszkańców <br />
+X6-ilość kin przypapdająca na 10000 mieszkańców <br />
+X7-przeciętne miesieczne wynagrodzenie brutto <br />
+X8-Wydatki budżetów powiatowych na mieszkańca <br />
+X9-bezrobotni zarejestrowani przypadający na 10000 mieszkańcóW <br />
+
+Dane pochodzą ze strony GUS(Główny urząd statystyczny)i odnoszą się do roku 2018. W badaniach wykorzystano dane z 24 pwoiatów województwa Łódzkiego z uwzględnieniem powiatów miasta Łódź, Piotrków Trybunalski oraz powiatu miasta Skierniewice. W tych badaniach jakość życia będzie determinowana przez czynniki takie jak dostępność placówek społeczno-edukacyjnych(X1,X2,x3), miejsc rozwoju kultury(X4,X5,X6) oraz wielkość czynników świadczących o kondycji gospodarczej badanego regionu(X7.X8,x9).
+
+```{r echo=FALSE}
+
+df <- read.csv(file="Dane_gotowe.csv", header=TRUE, sep=";")
+df <- data.frame(df, row.names = 1)
+
+    ```
+
+```{r }
+head(df)
+    ```
+
+```{r echo=FALSE}
+    ```
+
+#Wstępna analiza zbioru danych
+Poniżej zostały przedstawione podstawowe statystyki opisowe.
+```{r echo=FALSE}
+
+round(psych::describe(df), 2)
+    ```
+Skośność lewostronną możemy zaobserwować jedynie w przypadku zmiennej X9,która jest destymulantą, niosącej informację ilu bezrobotnych przypada na 10000 mieszkańców. Wartości ujemne kurtozy dla zmiennych X1,X3,X4,X6 świadczą o większej ilości wyników skrajnych dla tych zmiennych oraz ich rozkładzie platokurtycznym.
+
+##Korelacja
+```{r echo=FALSE}
+
+dfshort<-df[1:9]
+forcorrplot<-cor(dfshort)
+corrplot.mixed(forcorrplot,upper="number",lower="color",order="hclust")
+    ```
+
+Jak widać na macierzy korelacji wartości korelacji pomiędzy poszczególnymi zmiennymi na ogół jest niewielka i w większości przypadków nie przekracza 0,4. Jest to jak najbardziej pożądane zjawisko i świadczy o tym ,iż dane zawierają unikatowe informacje. Co ciekawe największa ujemna korelacja wynosząca -0,63 występuje pomiędzy zmiennymi które wyrażaj ilość żłobków(X1) oraz ilość szkół podstawowych(X2) przypadających na 10000 mieszkańców.
+
+
+##Współczynnik zmienności
+```{r echo=FALSE}
+for (i in colnames(df)) {
+    print(i)
+    print(sd(df[, i])/mean(df[, i]))
+}
+    ```
+
+Współczynnik zmienności dla każdej zmiennej przekracza 15%. Najwyższą wartość możemy zaobserwować w przypadku zmiennej X8 która niesie informacje o wydatkach budżetów powiatowych na jednego miekszkańca świadczy to o istotnym wpływie tej zmiennej na prowadzone badania. Jednocześnie możemy domniemywać o prawdziwość jednej z zakładanych hipotez mówiącej ,iż miasta na prawach powiatu będe klarować się wysoko w rankingu ze względu na duże wydatki z budżetów tych miast na jednego mieszkańca.
+
+#Badanie empiryczne
+
+
+###Metoda TOPSIS
+
+```{r echo=FALSE}
+d<-as.matrix(df)
+w<-c(rep(1/9,9))
+i<-c(rep("+",8),"-")
+top<- topsis(d,w,i)
+rownames(top)<-rownames(df)
+kable(top)
+
+
+    ```
+
+Metoda TOPSIS dała następujące rezultaty:<br />
+3 najlpesze powiaty to:<br />
+-powiat brzeziński<br />
+-powiat skierniewicki<br />
+-powait m. Łódź<br />
+3 najgorsze powaiaty to:<br />
+-Powiat pajęczański<br />
+-Powiat zduńskowolski	<br />
+-Powiat pajęczański	<br />
+
+
+
+###Metoda standaryzowanych sum
+
+```{r echo=FALSE}
+
+# 1. Zamieniam zmienne na stymulanty
+# (tylko dwie pierwsze, które były destymulantami)
+df[,9] <- -df[,9]
+
+# 2. Standaryzuję zmienne
+piwo_stand <- scale(df)
+
+# 3. Buduję wskaźnik syntetyczny
+st_sumy <- c()
+
+
+for (i in 1:24){
+  st_sumy[i] = mean(piwo_stand[i,])
+}
+names(st_sumy) <- rownames(df)
+# 4. Stosuję przekształcenie, by wskaźnik był z [0,1]
+#    a następnie go sortuję malejąco...
+wsk_st_sumy <- (st_sumy - min(st_sumy))/max(st_sumy - min(st_sumy))
+ranking_st_sumy <- sort(wsk_st_sumy, decreasing = T)
+kable(ranking_st_sumy)
+
+    ```
+
+Metoda standaryzowanych sum dała następujące rezultaty:<br />
+3 najlpesze powiaty to:<br />
+-powiat bełchatowski<br />
+-powiat skierniewicki<br />
+-powait brzeziński<br />
+3 najgorsze powaiaty to:<br />
+-Powiat pajęczański<br />
+-Powiat łaski	<br />
+-Powiat tomaszowski		<br />
+
+
+###Hellwig
+
+```{r echo=FALSE}
+# 1. Uwaga: zbiór danych piwo_stand to same stymulanty po stand.
+# 2. Definiuję wzorzec
+wzorzec <- c()
+for(i in 1:9){
+  wzorzec[i] = max(piwo_stand[,i])
+}
+
+# 3. Liczę odległość obiektu od wzorca
+di0 <- c()
+for (i in 1:24){
+  dane = rbind(piwo_stand[i,],wzorzec)
+  di0[i] = dist(dane)
+}
+
+# 4. Liczę d0 (odległość "maksymalna")
+d0 = mean(di0) + 2 * sd(di0)
+
+# 5. Liczę wartość wskaźnika symtetycznego
+hellwig <- 1 - di0/d0
+names(hellwig) <- rownames(df)
+ranking_hellwig <- sort(hellwig, decreasing = T)
+kable(ranking_hellwig)
+```
+
+Metoda Hellwiga dała następujące rezultaty:<br />
+3 najlpesze powiaty to:<br />
+-powiat bełchatowski<br />
+-powiat skierniewicki<br />
+-powait rawski<br />
+3 najgorsze powaiaty to:<br />
+-Powiat łaski<br />
+-Powiat pajęczański	<br />
+-Powiat tomaszowski		<br />
+
+Warto tu zwrócić uwage jak bardzo wynik powiatu bełchatowskiego rózni się od reszty powiatów. Różnica ta jest widoczna już w porównaniu z powiatem znajdującym się na drugiej pozycji, wartość dla powiatu skierniewickiego jest mniejsza o  22,3%.
+
+
+
+#Interpretacja wyników oraz podsumowanie
+Przeprowadzone badania pozwoliły wytypować powiaty które wydają się oferować najlepsze warunki do życia. Wszystkie trzy metody usytułowały powiat skierniewicki na drugiej pozycji biorąc pod uwage ,że badane były 24 powiaty jest to wysoka pozycja.Warto również wspomnieć o powiecie bełcahotwskim który wdlug dwóch metod jest najlepszy.
+
+
+Mapa przedstawia klasywikacje za pomocą metody standaryzowanych sum, na czerwono najlepsze, żółto dobre , cimno zielone średnie oraz na jasno zielone powiaty z najgorszymi warunakmi do życia.
+
+![](Wojewodzkie_lodzkie_adm.png)
+
+##Przegląd postawionych hipotez
+
+###Miasta na prawach powiatu będą w czałówce rankingu ze względu  na większe wydatki na mieszkańców oraz bardziej rozwiniętą infrastrukture.
+Najwyższe miejsca miast na prawach powiatu uzyskano przy użyciu metody TOPSIS. Wszystkie trzy znajdują się w pierwszej piątce co świadczyło by o prawdziwości tej hipotezy, jeśli pod uwagę nie były brane inne metody. Pozostałe dwie metody nie dały już aż tak oczekiwanych wyników, zwłaszcza metoda Hellwiga która umieściła Powiat m.Piotrków Trybunalski	oraz Powiat m.Skierniewice	na 19 i 21 miejscu. Co ciekawe mimo tak róźnych wyników dla wspomnianych wcześniej dwóch powiatów Powiat m.Łódź	w porządkowaniu przy pomocy każdej metody wypada dobrze, zapewne przyczyną tego jest rozmiar miasta Powiatu m.Łódź, dużej liczby ludności oraz zakresu wygód jakie oferuje tak duże miasto.
+
+###W czołówce będzie znajdować sie powiat bełchatowski ze względu na fakt, iż w jego skład wchodzi gmina kleszczów, która jest najbogatszą gminą w Polsce, a także na industrialny charakter tego regionu(kopalnia węgla brunatnego oraz elektrowania).
+Powiat bełchatowski uklasował się na pierwszym miejscu przy użyciu dwóch metod Hellwiga oraz standaryzowanych sum w analizie za pomocą metody TOPSIS był na 7 miejscu czyli również nienisko, niewątpliwe świadczy to o wyskoiej jakości życia w tym regionie. Kopalnia węgla bruntnego oraz elektorwania tworzą wiele miejsc pracy z dobrym wynagrodzeniem. Powód dla którego powiat bełchatowski znajduje się wysoko to oczywiście miasto Bełchatów które oferuj wygody takie jak ośrodki rozwoju kultury ale takze wpływa na podnisienie wydatków budżetów powiatowych na mieskzańca w tym regionie co może świadczyć o wyższej jakości życia na tym obszarze.Przedsatwione argumenty wydają się potwierdzać prawdziwość hipotezy.
+
+###Powiaty w których znajdują się miasta będą znajdować się w czołówce.
+Niewątpliwie powiaty w których znajdują się miasta klasują się na ogół wyżej w rankingach wyznaczonych przy pomocy wybranych metod porządkowania liniowego. Nasuwają się zatem wnioski, że obecność miast w powiecie determinuje poprawę czynników wpływających na jakość życia oraz ,iż nasz hipoteza jest prawdziwa.
+
+###Powiaty graniczące z województwem mazowieckim będą na wyższych pozycjach w rankingu.
+Powiaty grniczące z Województwem Mazowieckim to: powiat rawski, powiat skierniewicki, oraz powiat kutnowski.Jak już było wcześniej wspomniane wszystkie trzy metody usytułowały powiat skierniewicki na drugiej pozycji niwątpliwe świadczy to wysokiej jakości życia w tym regionie jak i o prawdziwości postawionej hipotezy. Jednak powiat łaski wypada źle w każdym z rankingów co pozwala myśleć ,że to czy powiat graniczy z województwem mazowieckim nie poprawia jakości życia w powiecie. powiat kutnowski zawsze wypada średnio natomiast powiat rawski według 2 metod znajduje się w czałówce. Nasuwają się wnioski, że to nie graniczenie z województwem mazowieckim wpływa na jakość życia a bliskość metrpoli jaką jest Warszawa(powiaty skiernieiwcki i rawski znajdują się najbliżej Warszawy ze wszystkich powiatów województwa łódzkiego).
+
+
+
+
